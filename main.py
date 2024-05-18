@@ -5,6 +5,7 @@ from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
 import consumers
+import env
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -18,13 +19,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-redis = get_redis_connection(
-    host="redis-17094.c305.ap-south-1-1.ec2.redns.redis-cloud.com",
-    port=17094,
-    password="LvWMMxPiqjfDpcA5NXOAyIX74rw4U8LM",
-    decode_responses=True
-)
+# redis = get_redis_connection(
+#     host="redis-17094.c305.ap-south-1-1.ec2.redns.redis-cloud.com",
+#     port=17094,
+#     password="LvWMMxPiqjfDpcA5NXOAyIX74rw4U8LM",
+#     decode_responses=True
+# )
 
+redis = get_redis_connection(
+    host=env.REDIS_HOST,
+    port=env.REDIS_PORT,
+    password=env.REDIS_PASSWORD,
+    decode_responses=True,
+)
 
 class Delivery(HashModel):
     budget: int = 0
@@ -78,4 +85,4 @@ async def create_delivery(request: Request):
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "dawd"}
