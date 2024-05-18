@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request
 from typing import Union
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel
-
+import consumers
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -43,6 +43,14 @@ class Event(HashModel):
     class Meta:
         database = redis
 
+@app.get('/deliveries/{pk}/status')
+async def get_delivery_status(pk: str):
+    logger.info(f"HEr si the key {pk}")
+    state = redis.get(f"delviery:{pk}")
+    if state:
+        return json.loads(state)
+    else:
+        return {"status": "not found"}
 
 @app.post("/deliveries/create")
 async def create_delivery(request: Request):
@@ -60,8 +68,11 @@ async def create_delivery(request: Request):
         data=json.dumps(data)
     ).save()
 
-    logger.info(body)
-    return event
+    state = consumers.create_delivery({}, event)
+
+    redis.set(f"delviery:{delivery.pk}", json.dumps(state))
+
+    return state
 
 
 @app.get("/")
