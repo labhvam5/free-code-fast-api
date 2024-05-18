@@ -26,7 +26,6 @@ redis = get_redis_connection(
 )
 
 
-
 class Delivery(HashModel):
     budget: int = 0
     notes: str = ''
@@ -43,6 +42,7 @@ class Event(HashModel):
     class Meta:
         database = redis
 
+
 @app.get('/deliveries/{pk}/status')
 async def get_delivery_status(pk: str):
     logger.info(f"HEr si the key {pk}")
@@ -51,6 +51,7 @@ async def get_delivery_status(pk: str):
         return json.loads(state)
     else:
         return {"status": "not found"}
+
 
 @app.post("/deliveries/create")
 async def create_delivery(request: Request):
@@ -78,4 +79,3 @@ async def create_delivery(request: Request):
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
